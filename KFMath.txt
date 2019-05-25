@@ -1,0 +1,76 @@
+import java.io.*;
+import java.util.*;
+
+public class KFMath {
+    public static void main(String[] args) {
+        try {
+            System.out.println("请把 计算完最终加成 的装备信息完整的复制到文本文档,\n保存为input.txt放置在src下,\n确认后输入y并按回车");
+            Scanner sc = new Scanner(System.in);
+            String c = sc.next();
+            if (!c.equalsIgnoreCase("y"))
+                return;
+            BufferedReader reader = new BufferedReader(new FileReader("src/input.txt"));
+            BufferedWriter writer = new BufferedWriter(new FileWriter("src/output.txt"));
+            String i;
+            StringBuilder input = new StringBuilder();
+            ArrayList<StringBuilder> Amour = new ArrayList<>();
+            ArrayList<StringBuilder> Weapon = new ArrayList<>();
+            while ((i = reader.readLine()) != null){
+                input.append(i).append("\n");
+            }
+            String string = input.toString();
+            String[] strings = string.split("装备\t熔炼");
+            for (String s : strings){
+                StringBuilder sb = new StringBuilder(s);
+                int j = sb.indexOf("传奇的");
+                if (j < 0)
+                    continue;
+                if (sb.substring(j + 3, j + 5).equals("布甲") || sb.substring(j + 3, j + 5).equals("皮甲") || sb.substring(j + 3, j + 5).equals("铠甲")){
+                    Amour.add(sb);
+                } else {
+                    Weapon.add(sb);
+                }
+            }
+            /*System.out.println(Amour.get(15).toString());
+            System.out.println(weapon.get(15).toString());*/
+            HashMap<Integer, Integer> HAmour = new HashMap<>();
+            HashMap<Integer, Integer> HWeapon = new HashMap<>();
+            for (StringBuilder sb : Amour){
+                int j = sb.indexOf("ID: "), k = sb.indexOf("] 传奇");
+                int x = sb.indexOf("技能减伤"), y = sb.length() - 1;
+                if (sb.substring(x + 4, x + 5).equals("0")){
+                    continue;
+                }
+                int a = Integer.parseInt(sb.substring(j + 4, k));
+                int b = Integer.parseInt(sb.substring(x + 8, y));
+                HAmour.put(a, b);
+            }
+            for (StringBuilder sb : Weapon){
+                int j = sb.indexOf("ID: "), k = sb.indexOf("] 传奇");
+                int x = sb.indexOf("技能伤害+"), y = sb.indexOf("% | 穿透");
+                if (sb.substring(x + 5, y).equals("0")){
+                    continue;
+                }
+                int a = Integer.parseInt(sb.substring(j + 4, k));
+                int b = Integer.parseInt(sb.substring(x + 5, y));
+                HWeapon.put(a, b);
+            }
+            int maxAmour = 0, maxWeapon = 0;
+            for (Map.Entry amour : HAmour.entrySet()){
+                if ((int)amour.getValue() > maxAmour){
+                    maxAmour = (int)amour.getKey();
+                }
+            }
+            for (Map.Entry weapon : HWeapon.entrySet()){
+                if ((int)weapon.getValue() > maxWeapon){
+                    maxWeapon = (int)weapon.getKey();
+                }
+            }
+            writer.write("技能减伤最强的防具的ID是" + maxAmour + ", 它的技能减伤是10% + " + HAmour.get(maxAmour) + "\n技能伤害最强的法杖的ID是" + maxWeapon + ", 它的技能加伤是10% + " + HWeapon.get(maxWeapon));
+            System.out.println("写入完成, 请检查output.txt");
+            writer.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
